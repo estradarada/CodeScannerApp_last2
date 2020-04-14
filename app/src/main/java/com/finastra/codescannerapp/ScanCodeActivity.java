@@ -1,9 +1,9 @@
 package com.finastra.codescannerapp;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-
-import javax.xml.transform.Result;
+import android.view.Window;
+import android.view.WindowManager;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -13,6 +13,11 @@ public class ScanCodeActivity extends AppCompatActivity implements ZXingScannerV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         ScannerView = new ZXingScannerView(this);
         setContentView(ScannerView);
     }
@@ -20,7 +25,7 @@ public class ScanCodeActivity extends AppCompatActivity implements ZXingScannerV
     @Override
     public void handleResult(com.google.zxing.Result result) {
 
-        MainActivity.resultTextView.setText(result.getText());
+        MainActivity.result_text.setText(result.getText());
         onBackPressed();
     }
 
