@@ -3,4 +3,8 @@
     <string name="send">Отправить</string>
     <string name="scan">Сканировать</string>
     <string name="choose_object">Выбрать объект</string>
+    <string name="story">История</string>
+    <string name="find">Найти</string>
+    <string name="date_start">Начиная с:</string>
+    <string name="date_end">До:</string>
 </resources>

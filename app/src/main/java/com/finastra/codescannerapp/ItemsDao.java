@@ -16,7 +16,7 @@ public interface ItemsDao {
     @Insert
     void insert(EntityItems entityItems);
 
-    @Query("SELECT * FROM entityitems")
+    @Query("SELECT * FROM entityitems ORDER BY date DESC")
     List<EntityItems> getAllEntityItems();
 
     @Query("SELECT * FROM entityitems WHERE entityId=:entityId")
@@ -24,6 +24,11 @@ public interface ItemsDao {
 
    @Query("SELECT * FROM entityitems ORDER BY entityId DESC LIMIT 1")
    List<EntityItems> getLastEntityItem();
+
+    @Query("SELECT * FROM entityitems WHERE date BETWEEN :dateBefore and :dateAfter")
+    @TypeConverters({TypeConverter.class})
+    List<EntityItems> getDateEntityItem(Date dateBefore, Date dateAfter);
+
 
     @Query("DELETE FROM entityitems")
     void deleteAll();

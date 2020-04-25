@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -15,13 +16,15 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.room.Room;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -29,7 +32,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
 import java.text.DateFormat;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
     Button btn_send;
     Button btn_scan;
     TextView object_name;
+    TextView last_result_text;
     String send;
     String sent_name;
     String sent_id = "0d6LuS37ftzHIY3GQk6N";
@@ -60,12 +67,13 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
 
 
     public static TextView result_text;
-    ImageView scan_btn;
     private static final int REQUEST_CAMERA = 1;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference reference = db.collection("Items");
     Adapter adapter;
+    DocumentReference documentReference;
+    MediaPlayer sound;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -104,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
+
+
+        sound = MediaPlayer.create(this, R.raw.volynka);
 
 
         entityItemsRoomDataBase = Room.databaseBuilder(this, RoomDataBase.class, "itemsDB")
@@ -135,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
 
 
         result_text = findViewById(R.id.result_text);
+        last_result_text = findViewById(R.id.last_resultText);
         object_name = findViewById(R.id.object_name);
         btn_scan = findViewById(R.id.btn_scan);
         btn_send = findViewById(R.id.btn_send);
@@ -190,10 +203,30 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
 
                 } else {
 
-                    Date currentDateSnap = new Date();
-                    DateFormat timeFormatSnap = new SimpleDateFormat("HH:mm, dd.MM.YYYY", Locale.getDefault());
+                   Date currentDateSnap = new Date();
+                    DateFormat timeFormatSnap = new SimpleDateFormat("HH:mm, dd.MM.YYYY",
+                            Locale.getDefault());
                     timeTextSnap = timeFormatSnap.format(currentDateSnap.getTime());
                     send = result_text.getText().toString();
+
+
+                    Log.d(TAG, "xxx" + " " + sent_id + " " + sent_name + " " + send);
+
+
+
+
+                    TypeConverter typeConverter = new TypeConverter();
+                    long entityTime = typeConverter.dateToTimestamp(currentDateSnap);
+
+
+                    entityItems.setObjectName(sent_name);
+                    entityItems.setItem_id(sent_id);
+                    entityItems.setWorker08(send);
+                    entityItems.setDate(entityTime);
+
+                    entityItemsRoomDataBase.itemsDao().insert(entityItems);
+                    Log.d(TAG, "insert");
+
 
                     documentReference.update("worker08", send, "worker15", timeTextSnap)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -213,9 +246,46 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
                                     "Ошибка" + e, Toast.LENGTH_LONG).show();
                         }
                     });
+
+
+
+
+
+
                 }
+
+
             }
         });
+
+
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
+                                @Nullable FirebaseFirestoreException e) {
+
+
+                Items items = documentSnapshot.toObject(Items.class);
+
+                String id = documentSnapshot.getId();
+                String name = items.getObjectName();
+                String last_entry_name = items.getWorker08();
+                String last_entry_time = items.getWorker15();
+
+                String info = last_entry_name + "\n" + last_entry_time;
+                Log.d(TAG, "snapShot" + " " + info);
+
+
+                last_result_text.setText(info);
+
+
+
+
+            }
+        });
+
+
+
     }
 
     @Override
@@ -235,9 +305,19 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
                 getSupportFragmentManager().beginTransaction()
                         .add(bottomViewFragment, "bottomViewFragment").commit();
                 getSupportFragmentManager().popBackStack();
-
-
                 return true;
+            case R.id.story:
+
+                Fragment popupObjectByDateFrag = new Popup_Object_by_Date_Frag();
+                FragmentManager fm = getSupportFragmentManager();
+
+
+                fm.beginTransaction().add(popupObjectByDateFrag, "popupObjectByDateFrag").commit();
+
+
+
+
+                return  true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -262,4 +342,20 @@ public class MainActivity extends AppCompatActivity implements BottomViewFragmen
     }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        adapter.startListening();
+
+
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        adapter.stopListening();
+    }
 }

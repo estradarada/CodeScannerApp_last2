@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,26 +28,19 @@ public class BottomViewFragment extends BottomSheetDialogFragment {
     RoomDataBase entityItemsRoomDataBase;
     EntityItems entityItems = new EntityItems();
 
-
-    TextClicked mCallback;
-
-    public interface TextClicked {
-        public void sendText(String text);
-    }
-
-
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference reference = db.collection("Items");
 
+    public interface TextClicked {
+        void sendText(String text);
+    }
+
+    TextClicked mCallback;
+
+
     Adapter adapter;
-    Adapter.CheckListener checkListener;
-
-    MainActivity mainActivity = new MainActivity();
-
     RecyclerView recyclerView;
-    TextView textView;
     String name;
-    // Toolbar toolbar;
 
 
     public BottomViewFragment() {
@@ -72,10 +64,8 @@ public class BottomViewFragment extends BottomSheetDialogFragment {
         adapter = new Adapter(options);
 
         recyclerView = v.findViewById(R.id.scan_recyclerView);
-        textView = v.findViewById(R.id.text);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
-
 
         adapter.setCheckListener(getContext(), new Adapter.CheckListener() {
             @Override
@@ -84,36 +74,26 @@ public class BottomViewFragment extends BottomSheetDialogFragment {
                 Items items = documentSnapshot.toObject(Items.class);
                 String docID = documentSnapshot.getId();
                 name = items.getObjectName();
-                String total = name + "\n" + docID;
-                textView.setText(total);
+                String worker08 = items.getWorker08();
+
 
                 mCallback.sendText(name);
 
                 entityItems.setObjectName(name);
                 entityItems.setItem_id(docID);
+                entityItems.setWorker08(worker08);
+
 
                 entityItemsRoomDataBase.itemsDao().insert(entityItems);
-                Log.d(TAG, "insertLastEntityItem" + " " + name );
-
-               // mainActivity.finish();
+                Log.d(TAG, "insertLastEntityItem" + " " + name);
 
                 Intent intent = new Intent(getContext(), MainActivity.class);
 // set the new task and clear flags
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-               //
-               // startActivity(new Intent(getContext(), MainActivity.class));
-
-
-
-
-
-
 
             }
         });
-
-
 
         return v;
     }
@@ -126,7 +106,6 @@ public class BottomViewFragment extends BottomSheetDialogFragment {
         entityItemsRoomDataBase = Room.databaseBuilder(getContext(), RoomDataBase.class, "itemsDB")
                 .fallbackToDestructiveMigration()
                 .allowMainThreadQueries().build();
-
 
     }
 

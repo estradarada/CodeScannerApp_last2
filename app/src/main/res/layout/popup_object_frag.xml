@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:id="@+id/lll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+
+            <EditText
+                android:id="@+id/edTxt_PopUpObject_by_date_Frag"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/search_input_style"
+                android:drawableLeft="@drawable/ic_search_gray_24dp"
+                android:hint="@string/date_start"
+                android:inputType="numberDecimal"
+                android:spinnersShown="false"
+                android:textColorHint="@color/content_text_color" />
+
+
+            <EditText
+                android:id="@+id/edTxt_2_PopUpObject_by_date_Frag"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/search_input_style"
+                android:drawableLeft="@drawable/ic_search_gray_24dp"
+                android:hint="@string/date_end"
+                android:inputType="numberDecimal"
+                android:spinnersShown="true"
+                android:textColorHint="@color/content_text_color" />
+
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/btn_find_PopUpObject_by_date_Frag"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:stateListAnimator="@null"
+            android:text="@string/find"
+            android:background="@drawable/list_selector_background"
+            android:textColor="@color/content_text_color" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/object_by_date_popup_frag_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/lll"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+</RelativeLayout>

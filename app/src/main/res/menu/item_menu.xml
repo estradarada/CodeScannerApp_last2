@@ -6,8 +6,16 @@
         android:id="@+id/settings"
         android:title="@string/choose_object"
         app:showAsAction="never" >
-
-
     </item>
+
+    <item
+        android:id="@+id/story"
+        android:title="@string/story"
+        app:showAsAction="never" >
+    </item>
+
+
+
+
 
 </menu>

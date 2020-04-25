@@ -20,9 +20,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 public class Adapter extends FirestoreRecyclerAdapter<Items,
         Adapter.ViewHolder> {
 
-    public CheckListener checkListener;
+    public CheckListener mCheckListener;
 
-    Context context;
+    Context mContext;
 
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
@@ -40,9 +40,9 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_layout,
                 parent, false);
-        context = parent.getContext();
+        mContext = parent.getContext();
 
-        return new ViewHolder(v, checkListener);
+        return new ViewHolder(v, mCheckListener);
     }
 
     @Override
@@ -50,10 +50,10 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
 
 
         holder.img_user
-                .setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_transition_animation));
+                .setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.fade_transition_animation));
 
         holder.staff_container
-                .setAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_scale_animation));
+                .setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.fade_scale_animation));
 
 
         holder.staff_name.setText(model.getObjectName());
@@ -63,7 +63,7 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        CheckListener checkListener;
+        CheckListener mCheckListener;
 
         TextView staff_name;
         ImageView img_user;
@@ -72,7 +72,7 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
 
         public ViewHolder(@NonNull View itemView, final CheckListener checkListener) {
             super(itemView);
-            this.checkListener = checkListener;
+            this.mCheckListener = checkListener;
 
 
             staff_name = itemView.findViewById(R.id.name);
@@ -85,7 +85,7 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
                 public void onClick(View v) {
 
                     int position = getAdapterPosition();
-                    checkListener.CheckClick(getSnapshots().getSnapshot(position), position);
+                    mCheckListener.CheckClick(getSnapshots().getSnapshot(position), position);
 
 
                 }
@@ -105,8 +105,8 @@ public class Adapter extends FirestoreRecyclerAdapter<Items,
 
     public void setCheckListener(Context context, CheckListener checkListener) {
 
-        this.checkListener = checkListener;
-        this.context = context;
+        this.mCheckListener = checkListener;
+        this.mContext = context;
 
     }
 
